@@ -1,0 +1,12 @@
+# 销售数据 - 深圳门店
+date,product,quantity,price,store
+2024-01-01,iPhone 15 Pro,8,7999,Shenzhen-1
+2024-01-02,Mac Studio,2,14999,Shenzhen-1
+2024-01-03,Mac Mini,5,4499,Shenzhen-2
+2024-01-03,iPhone 15 Pro,8,7999,Shenzhen-1
+2024-01-04,Apple Vision Pro,1,29999,Shenzhen-1
+2024-01-05,iPad mini,12,3999,Shenzhen-2
+,MacBook Pro,3,16999,Shenzhen-1
+2024-01-06,iPhone SE3,15,2499,Shenzhen-2
+2024-01-07,AirPods 3,20,1399,Shenzhen-1
+abc123,iPad Air,6,4799,Shenzhen-2

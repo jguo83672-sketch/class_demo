@@ -1,0 +1,16 @@
+# 数据处理配置
+data:
+  input_dir: "data/raw"
+  output_dir: "data/processed"
+  log_dir: "logs"
+
+database:
+  type: "sqlite"
+  path: "data/warehouse/sales.db"
+  table: "sales_data"
+
+process:
+  remove_duplicates: true
+  fill_missing: true
+  date_column: "date"
+  numeric_columns: ["quantity", "price", "total"]

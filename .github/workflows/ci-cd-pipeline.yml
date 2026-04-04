@@ -1,0 +1,162 @@
+# 数据处理 CI/CD 流水线
+
+name: Data Pipeline CI/CD
+
+# 触发条件
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+  # 手动触发
+  workflow_dispatch:
+
+env:
+  PYTHON_VERSION: '3.11'
+
+jobs:
+  # ==================== Job 1: 代码质量检查 ====================
+  lint:
+    name: Code Quality Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Cache pip packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt flake8 black
+
+      - name: Run Flake8 (代码风格检查)
+        run: flake8 src/ --count --select=E9,F63,F7,F82 --show-source --statistics
+
+      - name: Check code format with Black
+        run: black --check src/ tests/
+
+  # ==================== Job 2: 单元测试 ====================
+  test:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+    needs: lint
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Cache pip packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt pytest pytest-cov
+
+      - name: Run tests with coverage
+        run: pytest tests/ -v --cov=src --cov-report=xml --cov-report=html
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          file: ./coverage.xml
+          flags: unittests
+
+  # ==================== Job 3: 数据处理流水线 ====================
+  data-pipeline:
+    name: Data Processing Pipeline
+    runs-on: ubuntu-latest
+    needs: test
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run Data Pipeline
+        run: python main.py
+        env:
+          DATA_DIR: ./data/raw
+          OUTPUT_DIR: ./data/processed
+
+      - name: Verify output
+        run: |
+          echo "=== 检查输出文件 ==="
+          ls -la data/processed/
+          echo ""
+          echo "=== 检查数据库 ==="
+          ls -la data/warehouse/
+          echo ""
+          echo "=== 数据库内容 ==="
+          python -c "import sqlite3; conn = sqlite3.connect('data/warehouse/sales.db'); cursor = conn.cursor(); cursor.execute('SELECT COUNT(*) FROM sales_data'); print(f'总记录数: {cursor.fetchone()[0]}'); conn.close()"
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: pipeline-output
+          path: |
+            data/processed/
+            data/warehouse/
+          retention-days: 7
+
+  # ==================== Job 4: 部署 (仅 main 分支) ====================
+  deploy:
+    name: Deploy to Production
+    runs-on: ubuntu-latest
+    needs: data-pipeline
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Create production environment
+        run: |
+          echo "创建生产环境目录结构..."
+          mkdir -p /tmp/production/data
+          cp -r data/* /tmp/production/data/
+          echo "部署准备完成！"
+
+      - name: Run final verification
+        run: |
+          echo "=== 生产环境验证 ==="
+          ls -la /tmp/production/data/processed/
+          echo "✓ 部署成功！"
+
+      - name: Send notification
+        if: always()
+        run: |
+          echo "流水线执行完成: ${{ job.status }}"
+          echo "触发时间: $(date)"
+          echo "提交: ${{ github.sha }}"
+          echo "作者: ${{ github.actor }}"
