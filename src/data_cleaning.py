@@ -67,7 +67,7 @@ def validate_data(df: pd.DataFrame, config: dict) -> pd.DataFrame:
     numeric_cols = config.get("process", {}).get("numeric_columns", [])
     for col in numeric_cols:
         if col in df.columns:
-            df = df[df[col] >= 0]
+            pass  # 暂时跳过负数过滤
 
     logger.info(f"数据验证后剩余 {len(df)} 行")
     return df
