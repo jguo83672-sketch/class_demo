@@ -1,0 +1,14 @@
+date,product,quantity,price,store,source_file,# 销售数据 - 深圳门店,revenue
+2024-01-01,iPhone,5.0,6999.0,Beijing-A,cleaned_sales_beijing,,34995.0
+2024-01-02,MacBook,2.0,9999.0,Beijing-A,cleaned_sales_beijing,,19998.0
+2024-01-03,iPad,8.0,2999.0,Beijing-B,cleaned_sales_beijing,,23992.0
+2024-01-04,AirPods,15.0,999.0,Beijing-A,cleaned_sales_beijing,,14985.0
+2024-01-05,Apple Watch,10.0,2499.0,Beijing-B,cleaned_sales_beijing,,24990.0
+2024-01-01,MacBook Pro,3.0,12999.0,Shanghai-1,cleaned_sales_shanghai,,38997.0
+2024-01-02,iPhone 15,10.0,5999.0,Shanghai-1,cleaned_sales_shanghai,,59990.0
+2024-01-03,iPad Air,6.0,4799.0,Shanghai-2,cleaned_sales_shanghai,,28794.0
+2024-01-04,AirPods Max,4.0,4399.0,Shanghai-1,cleaned_sales_shanghai,,17596.0
+2024-01-05,MacBook Air,5.0,8999.0,Shanghai-2,cleaned_sales_shanghai,,44995.0
+,,,,,cleaned_sales_shenzhen,store,
+,,,,,cleaned_sales_shenzhen,Shenzhen-1,
+,,,,,cleaned_sales_shenzhen,Shenzhen-2,
