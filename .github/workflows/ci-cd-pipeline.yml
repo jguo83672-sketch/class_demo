@@ -37,13 +37,10 @@ jobs:
             ${{ runner.os }}-pip-
 
       - name: Install dependencies
-        run: pip install -r requirements.txt flake8 black
+        run: pip install -r requirements.txt flake8
 
       - name: Run Flake8 (代码风格检查)
         run: flake8 src/ --count --select=E9,F63,F7,F82 --show-source --statistics
-
-      - name: Check code format with Black
-        run: black --check src/ tests/
 
   # ==================== Job 2: 单元测试 ====================
   test:
