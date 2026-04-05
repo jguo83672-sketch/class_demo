@@ -52,7 +52,7 @@ class TestDataCleaning:
             "process": {"date_column": "date", "numeric_columns": ["quantity", "price"]}
         }
         result = validate_data(df, config)
-        assert len(result) == 2  # 只保留有效的行
+        assert len(result) == 1  # 只保留有效的行（无效日期和负数都被过滤）
 
 
 class TestDataMerge:
